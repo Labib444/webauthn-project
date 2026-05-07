@@ -138,7 +138,9 @@ app.post("/verify-authentication", async (req, res) => {
 
   const user = users[username];
 
-  const authenticator = user.devices[0];
+  const authenticator = user.devices.find(d =>
+    d.credentialID === credential.id
+  );
 
   try {
     //console.log(authenticator);
@@ -159,9 +161,8 @@ app.post("/verify-authentication", async (req, res) => {
 
     const { verified, authenticationInfo } = verification;
 
-    authenticator.counter = authenticationInfo.newCounter;
-
     if (verified) {
+        authenticator.counter = authenticationInfo.newCounter;
         sessions[username] = true;
     }
 
@@ -191,9 +192,6 @@ app.get("/dashboard", (req, res) => {
     <p>Authenticator: Windows Hello / Passkey</p>
   `);
 });
-
-
-
 
 
 app.listen(PORT, () => {
