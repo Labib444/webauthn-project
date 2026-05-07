@@ -20,12 +20,8 @@ const PORT = 3000;
 
 // ===== RP CONFIG =====
 const rpName = "CSE722 WebAuthn";
-const rpID = "localhost";
-const origin = "http://localhost:3000";
-
-// const rpName = "CSE722 WebAuthn";
-// const rpID = "190c-165-101-132-18.ngrok-free.app";
-// const origin = "https://190c-165-101-132-18.ngrok-free.app";
+const rpID = "labibabdullah444.duckdns.org";
+const origin = "https://labibabdullah444.duckdns.org";
  
 // ===== TEMP DATABASE =====
 const users = {};
