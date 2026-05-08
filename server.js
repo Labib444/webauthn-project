@@ -157,6 +157,12 @@ app.post("/verify-authentication", async (req, res) => {
 
   const user = users[username];
 
+  if (!user) {
+    return res.status(404).json({
+      error: "User not found",
+    });
+  }
+
   const authenticator = user.devices.find(d =>
     d.credentialID === credential.id
   );
