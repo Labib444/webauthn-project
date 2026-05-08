@@ -85,7 +85,7 @@ document.getElementById("loginBtn").onclick = async () => {
     const verifyData = await verifyResp.json();
 
     if(verifyData.verified){
-        window.location.href = `/dashboard?username=${username}`;
+        window.location.href = "/dashboard";
     }else{
         alert("Login failed");
     }

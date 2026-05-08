@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const crypto = require("crypto");
-const sessions = {};
+const session = require("express-session");
+require("dotenv").config();
 
 const {
   generateRegistrationOptions,
@@ -14,6 +15,19 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+
+    cookie: {
+      secure: false,
+      httpOnly: true,
+      sameSite: "lax",
+    },
+  })
+);
 app.use(express.static("public"));
 
 const PORT = 3000;
@@ -22,6 +36,10 @@ const PORT = 3000;
 const rpName = "CSE722 WebAuthn";
 const rpID = "labibabdullah444.duckdns.org";
 const origin = "https://labibabdullah444.duckdns.org";
+
+// const rpName = "CSE722 WebAuthn";
+// const rpID = "localhost";
+// const origin = "http://localhost:3000";
  
 // ===== TEMP DATABASE =====
 const users = {};
@@ -163,7 +181,7 @@ app.post("/verify-authentication", async (req, res) => {
 
     if (verified) {
         authenticator.counter = authenticationInfo.newCounter;
-        sessions[username] = true;
+        req.session.username = username;
     }
 
     res.json({
@@ -180,17 +198,127 @@ app.post("/verify-authentication", async (req, res) => {
 
 
 app.get("/dashboard", (req, res) => {
-  const username = req.query.username;
-
-  if (!sessions[username]) {
+  if (!req.session.username) {
     return res.status(403).send("Access Denied");
   }
 
+  const username = req.session.username;
+
+  const user = users[username];
+
+  const devicesHTML = user.devices.map((device, index) => {
+    const transports = device.transports
+      ? device.transports.join(", ")
+      : "Unknown";
+
+    return `
+      <div style="margin-top:20px; text-align:left;">
+        <h3>Authenticator ${index + 1}</h3>
+
+        <p>
+          <strong>Credential ID:</strong><br/>
+          ${device.credentialID}
+        </p>
+
+        <p>
+          <strong>Transport:</strong>
+          ${transports}
+        </p>
+
+        <p>
+          <strong>Signature Counter:</strong>
+          ${device.counter}
+        </p>
+      </div>
+    `;
+  }).join("");
+
   res.send(`
-    <h1>Welcome ${username}</h1>
-    <p>You are successfully logged in using WebAuthn</p>
-    <p>Authenticator: Windows Hello / Passkey</p>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Dashboard</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+      body {
+        font-family: Arial;
+        margin: 0;
+        min-height: 100vh;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        padding: 20px;
+      }
+
+      .box {
+        border: 1px solid #ddd;
+
+        border-radius: 10px;
+
+        padding: 30px;
+
+        width: 100%;
+        max-width: 500px;
+
+        text-align: center;
+      }
+
+      button {
+        padding: 10px 20px;
+
+        cursor: pointer;
+
+        margin-top: 20px;
+      }
+
+      p {
+        word-wrap: break-word;
+      }
+
+      @media (max-width: 480px) {
+        .box {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="box">
+
+      <h2>Protected Dashboard</h2>
+
+      <p>
+        You are successfully authenticated using WebAuthn.
+      </p>
+
+      <p>
+        <strong>Username:</strong>
+        ${username}
+      </p>
+
+      ${devicesHTML}
+
+      <button onclick="window.location='/logout'">
+        Logout
+      </button>
+
+    </div>
+
+  </body>
+  </html>
   `);
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/");
+  });
 });
 
 
