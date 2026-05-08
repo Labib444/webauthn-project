@@ -22,7 +22,7 @@ app.use(
     saveUninitialized: false,
 
     cookie: {
-      secure: false,
+      secure: true,
       httpOnly: true,
       sameSite: "lax",
     },
