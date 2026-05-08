@@ -2,11 +2,11 @@
 
 # Introduction
 
-**ID**: 1000060442
-**Name**: Labib Abdullah
-**Course**: Applied Cryptography CSE 722 
-**github**: https://github.com/Labib444/webauthn-project.git
-**OS**: Amazon 3 Linux
+- **ID**: 1000060442
+- **Name**: Labib Abdullah
+- **Course**: Applied Cryptography CSE 722 
+- **github**: https://github.com/Labib444/webauthn-project.git
+- **OS**: Amazon 3 Linux
 
 # Technologies Used
 
